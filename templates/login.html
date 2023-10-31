@@ -1,0 +1,38 @@
+<!-- 
+    CSE 106 -- Lab 8
+    HTML -- /templates/index.html
+-->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>Lab8 - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</head>
+<body>
+    <form method="POST" id="login-form">
+        <div class="form-outline mb-4">
+            {{ form.hidden_tag() }}
+            {{ form.username(class_="form-control") }}
+        </div>
+        <div class="form-outline mb-4">
+            {{ form.password(class_="form-control", type_="password") }}
+        </div>
+        <div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h6 class = "error"> {{message}}</h6>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {{ form.submit(class_="btn" ) }}
+    </form>
+</body>
+</html>
