@@ -5,16 +5,58 @@
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
     <title>Lab8 - Student</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/student.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/student.css') }}"
+    />
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/student.js') }}"></script>
-</head>
-<body>
-    <h1>Student Page!</h1>
-</body>
+  </head>
+  <body>
+    {% block content}
+    <div class="container">
+      <h1>{%block title}Welcome {{ s</h1>
+      <!-- {{current.user.name}} -->
+
+      <div class="header">
+        <h2>ACME University</h2>
+        <button>Sign Out</button>
+      </div>
+
+      <div class="content">
+        <div class="sidebar">
+          <button onclick="getAllOfferedCourses()">Add Courses</button>
+          <button onclick="getRegisteredCourses()">Your Courses</button>
+        </div>
+
+        <div class="main">
+          <table>
+            <tr>
+              <th>Course Name</th>
+              <th>Teacher</th>
+              <th>Time</th>
+              <th>Students Enrolled</th>
+            </tr>
+            <tr>
+              <td>Physics 121</td>
+              <td>Susan Walker</td>
+              <td>TR 11:00-11:50 AM</td>
+              <td>5/10</td>
+            </tr>
+            <tr>
+              <td>CS 106</td>
+              <td>Ammon Hepworth</td>
+              <td>MWF 2:00-2:50 PM</td>
+              <td>4/10</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

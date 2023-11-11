@@ -8,6 +8,9 @@ from functools import wraps
 # Flask Basics
 from flask import Flask, render_template,render_template ,url_for, redirect, session, request, flash, jsonify
 
+# Flask Restful
+from flask_restful import abort
+
 # Flask JWT
 from flask_jwt_extended import JWTManager
 
@@ -26,6 +29,7 @@ from wtforms.validators import InputRequired
 # Database & tables
 from database import db, ACCESS, User, Student, Teacher, Course, Grade
 
+from sqlalchemy.exc import SQLAlchemyError
 
 
 ### Flask App Config ###
@@ -119,6 +123,162 @@ def logout():
 def student(s_id):
     return render_template('student.html', student_id=s_id)
 
+# GET Student's registered courses
+@app.route("/student/<int:s_id>/c", methods = ['GET'])
+@login_required
+def student_courses(s_id):
+    records = []
+
+    try:
+        
+        sql = """
+                SELECT  
+                    g.g_id, g.g_grade,
+                    c.c_name, c.c_schedule,
+                    t.t_name, g.g_course_id
+                FROM student s, course c, grade g, teacher t
+                WHERE s.s_id = ?
+                    AND g.g_student_id = s.s_id
+                    AND c.c_id = g.g_course_id
+                    AND t.t_id = c.c_teacher_id
+            """
+        
+        rows = db.engine.execute(sql, (s_id))
+        
+        for row in rows:
+            record = {}
+
+            record['g_id'] =            row[0]
+            record['grade'] =           row[1]
+            record['course'] =          row[2]
+            record['schedule'] =        row[3]
+            record['teacher'] =         row[4]
+            record['c_id'] =            row[5]
+            
+            records.append(record)
+
+        count = len(records)
+        response = {'count': count, 'payload': records}
+        
+        return jsonify(response)
+        
+    except SQLAlchemyError as e:
+        abort(500, error='Could not process request')
+
+# GET available courses and if the student is registered to them
+@app.route("/student/<int:s_id>/r", methods = ['GET'])
+@login_required
+def student_registration_list(s_id):
+    records = []
+
+    try:
+        
+        sql = """
+                SELECT
+                    c.c_id, c.c_name, c.c_schedule,
+                    t.t_name,
+                    COUNT(g.g_course_id) AS enrolled, c.c_capacity
+                FROM course c, grade g, teacher t
+                WHERE c.c_id
+                    AND g.g_course_id = c.c_id
+                    AND t.t_id = c.c_teacher_id
+                GROUP BY c.c_id
+            """
+        
+        rows = db.engine.execute(sql)
+        
+        sql2 = """
+                SELECT
+                    g.g_course_id
+                FROM grade g
+                WHERE g.g_student_id = ?
+            """
+        
+        rows2 = db.engine.execute(sql2, (s_id))
+
+        student_c_ids = []
+
+        for row2 in rows2:
+            student_c_ids.append(row2[0])
+
+        for row in rows:
+            record = {}
+
+            record['c_id'] =            row[0]
+            record['course'] =          row[1]
+            record['schedule'] =        row[2]
+            record['teacher'] =         row[3]
+            record['enrollment'] =      row[4]
+            record['capacity'] =        row[5]
+
+            if row[0] in student_c_ids:
+                record['student_enrolled'] = True
+            else:
+                record['student_enrolled'] = False
+
+            records.append(record)
+
+        count = len(records)
+        response = {'count': count, 'payload': records}
+        
+        return jsonify(response)
+        
+    except SQLAlchemyError as e:
+        abort(500, error='Could not process request')
+
+# PUT for registering/dropping a course
+# Given a s_id & c_id
+# If there is a record in GRADE table where g_student_id = s_id && g_course_id = c_id
+# Then delete that record
+# Otherwise create a new record in GRADE using s_id & c_id
+# Last return an updated registration list
+@app.route("/register/<int:s_id>/<int:c_id>", methods = ['PUT'])
+@login_required
+def student_registration(s_id, c_id):
+    try:
+        
+        sql = """
+                SELECT g_id
+                FROM grade
+                WHERE g_student_id = ?
+                    AND g_course_id = ?
+            """
+        
+        rows = db.engine.execute(sql, (s_id, c_id))
+
+        registered = False
+
+        for row in rows:
+            if row[0]:
+                registered = True
+                g_id = row[0]
+                break
+        
+        # If registered, DELETE from grade
+        if registered:
+            sql =   """
+                        DELETE FROM grade
+                        WHERE g_id = ?
+                    """
+            
+            db.engine.execute(sql, (g_id))
+
+        # If not registered, POST to grade
+        else:
+            sql =   """
+                        INSERT INTO grade (
+                            g_student_id, g_course_id
+                        )
+                        values(?, ?)
+                    """
+            
+            db.engine.execute(sql, (s_id, c_id))
+        
+    except SQLAlchemyError as e:
+        abort(500, error='Could not process request')
+
+    return jsonify(200)
+
 
 
 ### Teacher Page ###
@@ -128,6 +288,100 @@ def student(s_id):
 @login_required
 def teacher(t_id):
     return render_template('teacher.html', teacher_id=t_id)
+
+# GET Teacher Courses
+@app.route("/teacher/<int:t_id>/c", methods = ['GET'])
+@login_required
+def teacher_courses(t_id):
+    try:
+        records = []
+
+        sql = """
+                SELECT
+                    c.c_id, c.c_name, c.c_schedule,
+                    COUNT(g.g_course_id) AS enrolled, c.c_capacity
+                FROM course c, grade g
+                WHERE c.c_teacher_id = ?
+                    AND g.g_course_id = c.c_id
+            """
+        
+        rows = db.engine.execute(sql, (t_id))
+
+        for row in rows:
+            record = {}
+
+            record['c_id'] =            row[0]
+            record['course'] =          row[1]
+            record['schedule'] =        row[2]
+            record['enrollment'] =      row[3]
+            record['capacity'] =        row[4]
+            
+            records.append(record)
+
+        count = len(records)
+        response = {'count': count, 'payload': records}
+        
+        return jsonify(response)
+
+    except SQLAlchemyError as e :
+        abort(500, error='Could not process request')
+
+# GET Course Grade
+@app.route("/course/<int:c_id>", methods = ['GET'])
+@login_required
+def teacher_grading(c_id):
+    try:
+        records = []
+
+        sql = """
+                SELECT
+                    g.g_id,
+                    s.s_name,
+                    g.g_grade
+                FROM course c, student s, grade g
+                WHERE c.c_id = ?
+                    AND g.g_course_id = c.c_id
+                    AND s.s_id = g.g_student_id
+            """
+        
+        rows = db.engine.execute(sql, (c_id))
+
+        for row in rows:
+            record = {}
+
+            record['g_id'] =            row[0]
+            record['student'] =         row[1]
+            record['grade'] =           row[2]
+            
+            records.append(record)
+
+        count = len(records)
+        response = {'count': count, 'payload': records}
+        
+        return jsonify(response)
+
+    except SQLAlchemyError as e :
+        abort(500, error='Could not process request')
+
+# PUT Student Grade
+@app.route("/grade/<int:g_id>/<float:grade>", methods = ['PUT'])
+@login_required
+def update_grade(g_id, grade):
+    try:
+        sql =   """ 
+                    UPDATE grade
+                    SET g_grade = ?
+                    WHERE g_id = ?
+                """
+        
+        input = (grade, g_id)
+
+        db.engine.execute(sql, input)
+        
+    except SQLAlchemyError as e :
+        abort(500, error='Could not process request')
+    
+    return jsonify(200)
 
 
 
