@@ -18,42 +18,41 @@
     <script src="{{ url_for('static', filename='js/student.js') }}"></script>
   </head>
   <body>
-    {% block content}
+    <input type="hidden" id="studentid" value="{{ student_id }}" />
     <div class="container">
-      <h1>{%block title}Welcome {{ s</h1>
-      <!-- {{current.user.name}} -->
+      <h1> Welcome </h1>
 
       <div class="header">
         <h2>ACME University</h2>
-        <button>Sign Out</button>
+        <a href="{{ url_for('logout') }}"><button>Sign Out</button></a>
       </div>
 
       <div class="content">
         <div class="sidebar">
-          <button onclick="getAllOfferedCourses()">Add Courses</button>
-          <button onclick="getRegisteredCourses()">Your Courses</button>
+          <button onclick="displayRegisteredCourses()">Your Courses</button>
+          <button onclick="displayOfferedCourses()">Add Courses</button>
         </div>
 
         <div class="main">
-          <table>
+          <table class="studentTable">
             <tr>
               <th>Course Name</th>
               <th>Teacher</th>
               <th>Time</th>
-              <th>Students Enrolled</th>
+              <th>Grade</th>
             </tr>
+            <tbody></tbody>
+          </table>
+
+          <table class="registrationTable hide">
             <tr>
-              <td>Physics 121</td>
-              <td>Susan Walker</td>
-              <td>TR 11:00-11:50 AM</td>
-              <td>5/10</td>
+              <th>Course Name</th>
+              <th>Teacher</th>
+              <th>Time</th>
+              <th>Capacity</th>
+              <th>Enrolled</th>
             </tr>
-            <tr>
-              <td>CS 106</td>
-              <td>Ammon Hepworth</td>
-              <td>MWF 2:00-2:50 PM</td>
-              <td>4/10</td>
-            </tr>
+            <tbody></tbody>
           </table>
         </div>
       </div>

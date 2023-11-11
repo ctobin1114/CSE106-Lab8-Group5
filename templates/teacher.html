@@ -2,31 +2,59 @@
     CSE 106 -- Lab 8
     HTML -- /templates/teacher.html
 -->
+<!-- 
+    CSE 106 -- Lab 8
+    HTML -- /templates/student.html
+-->
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
-    <title>Lab8 - Teacher</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lab8 - Student</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/teacher.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/teacher.css') }}"
+    />
     <!-- Scripts -->
     <script src="{{ url_for('static', filename='js/teacher.js') }}"></script>
-</head>
-<body>
-    <h1>Teacher Page!</h1>
-    <div class="content">
-        <table>
+  </head>
+  <body>
+    <input type="hidden" id="teacherid" value="{{ teacher_id }}" />
+    <div class="container">
+      <h1> Welcome </h1>
+
+      <div class="header">
+        <h2>ACME University</h2>
+        <a href="{{ url_for('logout') }}"><button>Sign Out</button></a>
+      </div>
+
+      <div class="content">
+        <div class="sidebar">
+          <button onclick="showCourse()">Your Courses</button>
+        </div>
+
+        <div class="main">
+          <table class="teacherTable">
             <tr>
-                <th>Course Name</th>
-                <th>Time</th>
-                <th>Students Enrolled</th>
+              <th>Course Name</th>
+              <th>Time</th>
+              <th>Enrollment</th>
             </tr>
-        </table>
+            <tbody></tbody>
+          </table>
+
+          <table class="gradeTable hide">
+            <tr>
+              <th>Student</th>
+              <th>Grade</th>
+            </tr>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-
-
-
-</body>
+  </body>
 </html>

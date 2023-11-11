@@ -111,7 +111,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect('login')
+    return redirect(url_for('login'))
 
 
 
@@ -364,7 +364,7 @@ def teacher_grading(c_id):
         abort(500, error='Could not process request')
 
 # PUT Student Grade
-@app.route("/grade/<int:g_id>/<float:grade>", methods = ['PUT'])
+@app.route("/grade/<int:g_id>/<grade>", methods = ['PUT'])
 @login_required
 def update_grade(g_id, grade):
     try:
@@ -374,7 +374,7 @@ def update_grade(g_id, grade):
                     WHERE g_id = ?
                 """
         
-        input = (grade, g_id)
+        input = (float(grade), g_id)
 
         db.engine.execute(sql, input)
         
