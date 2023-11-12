@@ -15,24 +15,33 @@
     <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </head>
 <body>
-    <form method="POST" id="login-form">
-        <div class="form-outline mb-4">
-            {{ form.hidden_tag() }}
-            {{ form.username(class_="form-control") }}
+    <div class="header">
+        <h2>ACME University</h2>
+    </div>
+    <div class="content">
+        <div class="main">
+            <div class="login-container">
+                <form method="POST" id="login-form">
+                    <div>
+                        {{ form.hidden_tag() }}
+                        {{ form.username(class_="form-control") }}
+                    </div>
+                    <div>
+                        {{ form.password(class_="form-control", type_="password") }}
+                    </div>
+                    <div>
+                        {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <h6 class = "error"> {{message}}</h6>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    {{ form.submit(class_="btn" ) }}
+                </form>
+            </div>
         </div>
-        <div class="form-outline mb-4">
-            {{ form.password(class_="form-control", type_="password") }}
-        </div>
-        <div>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <h6 class = "error"> {{message}}</h6>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-        {{ form.submit(class_="btn" ) }}
-    </form>
+    </div>
 </body>
 </html>

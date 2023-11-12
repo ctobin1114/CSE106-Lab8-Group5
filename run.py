@@ -6,7 +6,7 @@
 from functools import wraps
 
 # Flask Basics
-from flask import Flask, render_template,render_template ,url_for, redirect, session, request, flash, jsonify
+from flask import Flask, render_template,render_template ,url_for, redirect, flash, jsonify
 
 # Flask Restful
 from flask_restful import abort
@@ -15,7 +15,7 @@ from flask_restful import abort
 from flask_jwt_extended import JWTManager
 
 # Flask Login
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_login import login_user, LoginManager, login_required, logout_user
 
 # Flask Admin
 from flask_admin import Admin
@@ -27,7 +27,7 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired
 
 # Database & tables
-from database import db, ACCESS, User, Student, Teacher, Course, Grade
+from database import db, User, Student, Teacher, Course, Grade
 
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -178,10 +178,9 @@ def student_registration_list(s_id):
                     c.c_id, c.c_name, c.c_schedule,
                     t.t_name,
                     COUNT(g.g_course_id) AS enrolled, c.c_capacity
-                FROM course c, grade g, teacher t
-                WHERE c.c_id
-                    AND g.g_course_id = c.c_id
-                    AND t.t_id = c.c_teacher_id
+                FROM course c, teacher t
+                LEFT JOIN grade g ON g.g_course_id = c.c_id
+                WHERE t.t_id = c.c_teacher_id
                 GROUP BY c.c_id
             """
         
@@ -300,9 +299,10 @@ def teacher_courses(t_id):
                 SELECT
                     c.c_id, c.c_name, c.c_schedule,
                     COUNT(g.g_course_id) AS enrolled, c.c_capacity
-                FROM course c, grade g
+                FROM course c
+                LEFT JOIN grade g ON g.g_course_id = c.c_id
                 WHERE c.c_teacher_id = ?
-                    AND g.g_course_id = c.c_id
+                GROUP BY c.c_id
             """
         
         rows = db.engine.execute(sql, (t_id))

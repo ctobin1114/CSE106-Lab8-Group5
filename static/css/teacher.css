@@ -1,3 +1,87 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 80%;
+  margin: auto;
+}
+
+.header {
+  background-color: #333;
+  color: #fff;
+  padding: 15px;
+  text-align: center;
+}
+
+.header h2 {
+  margin: 0;
+}
+
+.content {
+  display: flex;
+}
+
+.sidebar {
+  width: 20%;
+  padding: 20px;
+  background-color: #f0f0f0;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+Ebutton{
+  width: 100%;
+  padding: 5px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+input{
+  width: 10%;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.teacherTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.gradeTable{
+  width: 100%;
+}
+
+.teacherTable th,
+.teacherTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.gradeTable th, 
+.gradeTable td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
 .hide {
-    display: none;
+  display: none;
 }
